@@ -3,9 +3,9 @@
     "info": {
         "title": "SDH API",
         "description": "This service provides data to feed SDH dashboard widgets.",
-        "version": "0.0.3",
+        "version": "0.0.4",
         "license": {
-            "name": "Apache 2.0",
+            "name": "Apache License 2.0",
             "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
         },
         "contact": {
@@ -23,12 +23,24 @@
     ],
     "tags": [
         {
+            "name": "Auth",
+            "description": "Operations about authorization"
+        },
+        {
             "name": "API",
             "description": "Operations about API"
         },
         {
             "name": "Organization",
             "description": "Operations about Organization"
+        },
+        {
+            "name": "Product",
+            "description": "Operations about Products"
+        },
+        {
+            "name": "Project",
+            "description": "Operations about Projects"
         },
         {
             "name": "Repository",
@@ -52,6 +64,90 @@
         }
     ],
     "paths": {
+        "/auth/login/":{
+            "post": {
+                "x-swagger-router-controller": "Auth",
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "API JSON Definition",
+                "operationId": "login",
+                "parameters": [
+                    {
+                        "name": "username",
+                        "in": "formData",
+                        "description": "User name",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "password",
+                        "in": "formData",
+                        "description": "User password",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "properties": {
+                                "token": {
+                                    "type": "string",
+                                    "description": "Token to use inside an 'Authentication: Bearer <token>' header"
+                                },
+                                "user": {
+                                    "type": "object",
+                                    "description": "Ldap user information"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication error"
+                    }
+                }
+            }
+        },
+        "/auth/check/":{
+            "get": {
+                "x-swagger-router-controller": "Auth",
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "API JSON Definition",
+                "operationId": "check",
+                "parameters": [ ],
+                "responses": {
+                    "200": {
+                        "description": "Authentication information is correct"
+                    },
+                    "401": {
+                        "description": "Authentication error"
+                    }
+                }
+            }
+        },
+        "/auth/logout/":{
+            "post": {
+                "x-swagger-router-controller": "Auth",
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "API JSON Definition",
+                "operationId": "logout",
+                "parameters": [ ],
+                "responses": {
+                    "200": {
+                        "description": "User was logged out"
+                    },
+                    "401": {
+                        "description": "Authentication error"
+                    }
+                }
+            }
+        },
         "/api/": {
             "get": {
                 "x-swagger-router-controller": "API",
@@ -70,7 +166,7 @@
                 }
             }
         },
-        "/": {
+        "/organization": {
             "get": {
                 "x-swagger-router-controller": "Organization",
                 "tags": [
@@ -84,6 +180,108 @@
                         "schema": {
                             "$ref": "#/definitions/organizationinfo"
                         }
+                    }
+                }
+            }
+        },
+        "/products/": {
+            "get": {
+                "x-swagger-router-controller": "Product",
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Products info list",
+                "operationId": "allProductsInfo",
+                "responses": {
+                    "200": {
+                        "description": "Product list",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/product"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/products/{prid}": {
+            "get": {
+                "x-swagger-router-controller": "Product",
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Product description",
+                "operationId": "productInfo",
+                "parameters": [
+                    {
+                        "name": "prid",
+                        "in": "path",
+                        "description": "Product id",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Product info.",
+                        "schema": {
+                            "$ref": "#/definitions/productinfo"
+                        }
+                    },
+                    "404": {
+                        "description": "Product not found"
+                    }
+                }
+            }
+        },
+        "/projects/": {
+            "get": {
+                "x-swagger-router-controller": "Project",
+                "tags": [
+                    "Project"
+                ],
+                "summary": "Projects info list",
+                "operationId": "allProjectsInfo",
+                "responses": {
+                    "200": {
+                        "description": "Project list",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/project"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/projects/{pid}": {
+            "get": {
+                "x-swagger-router-controller": "Project",
+                "tags": [
+                    "Project"
+                ],
+                "summary": "Project description",
+                "operationId": "projectInfo",
+                "parameters": [
+                    {
+                        "name": "pid",
+                        "in": "path",
+                        "description": "Project id",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Project info.",
+                        "schema": {
+                            "$ref": "#/definitions/projectinfo"
+                        }
+                    },
+                    "404": {
+                        "description": "Project not found"
                     }
                 }
             }
@@ -259,6 +457,20 @@
                         "type": "string"
                     },
                     {
+                        "name": "pid",
+                        "in": "query",
+                        "description": "Project id",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "prid",
+                        "in": "query",
+                        "description": "Product id",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
                         "name": "uid",
                         "in": "query",
                         "description": "User id",
@@ -349,6 +561,20 @@
                         "type": "string"
                     },
                     {
+                        "name": "pid",
+                        "in": "query",
+                        "description": "Project id",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "prid",
+                        "in": "query",
+                        "description": "Product id",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
                         "name": "uid",
                         "in": "query",
                         "description": "User id",
@@ -392,10 +618,6 @@
                 "swaggerjson": {
                     "type": "string",
                     "description": "Swagger json"
-                },
-                "host": {
-                    "type": "string",
-                    "description": "API host"
                 }
             }
         },
@@ -415,11 +637,191 @@
                 }
             }
         },
+        "product": {
+            "properties": {
+                "productid": {
+                    "type": "string",
+                    "description": "Unique Product identifier"
+                },
+                "name": {
+                    "type": "string",
+                    "description": "The Product name"
+                },
+                "description": {
+                    "type": "string",
+                    "description": "The Product description"
+                },
+                "tags" : {
+                    "type": "array",
+                    "description": "Tags",
+                    "items": {
+                      "type": "string"
+                    }
+                },
+                "avatar": {
+                    "type": "string",
+                    "description": "Product avatar URL"
+                }
+            }
+        },
+        "productinfo": {
+            "properties": {
+                "productid": {
+                    "type": "string",
+                    "description": "Unique Product identifier"
+                },
+                "name": {
+                    "type": "string",
+                    "description": "The Product name"
+                },
+                "description": {
+                    "type": "string",
+                    "description": "The Product description"
+                },
+                "firstCommit": {
+                    "type": "string",
+                    "format": "date",
+                    "description": "First commit date"
+                },
+                "lastCommit": {
+                    "type": "string",
+                    "format": "date",
+                    "description": "Last commit date"
+                },
+                "scmlink": {
+                    "type": "string",
+                    "description": "SCM URL"
+                },
+                "creation": {
+                    "type": "string",
+                    "format": "date",
+                    "description": "The Product creation date"
+                },
+                "tags" : {
+                    "type": "array",
+                    "description": "Tags",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "avatar": {
+                    "type": "string",
+                    "description": "Product avatar URL"
+                },
+                "owner" : {
+                    "type": "string",
+                    "description": "Product Owner"
+                },
+                "projects" : {
+                    "type": "array",
+                    "description": "Product projects",
+                    "items": {
+                        "$ref": "#/definitions/project"
+                    }
+                },
+                "users" : {
+                    "type": "object",
+                    "description": "Product users by position"
+                }
+            }
+        },
+        "project": {
+            "properties": {
+                "projectid": {
+                    "type": "string",
+                    "description": "Unique Project identifier"
+                },
+                "name": {
+                    "type": "string",
+                    "description": "The Project name"
+                },
+                "description": {
+                    "type": "string",
+                    "description": "The Project description"
+                },
+                "tags" : {
+                    "type": "array",
+                    "description": "Tags",
+                    "items": {
+                      "type": "string"
+                    }
+                },
+                "avatar": {
+                    "type": "string",
+                    "description": "Project avatar URL"
+                }
+            }
+        },
+        "projectinfo": {
+            "properties": {
+                "projectid": {
+                    "type": "string",
+                    "description": "Unique Project identifier"
+                },
+                "name": {
+                    "type": "string",
+                    "description": "The Project name"
+                },
+                "description": {
+                    "type": "string",
+                    "description": "The Project description"
+                },
+                "firstCommit": {
+                    "type": "string",
+                    "format": "date",
+                    "description": "First commit date"
+                },
+                "lastCommit": {
+                    "type": "string",
+                    "format": "date",
+                    "description": "Last commit date"
+                },
+                "scmlink": {
+                    "type": "string",
+                    "description": "SCM URL"
+                },
+                "creation": {
+                    "type": "string",
+                    "format": "date",
+                    "description": "The Project creation date"
+                },
+                "tags" : {
+                    "type": "array",
+                    "description": "Tags",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "avatar": {
+                    "type": "string",
+                    "description": "Project avatar URL"
+                },
+                "owner" : {
+                    "type": "string",
+                    "description": "Project Owner"
+                },
+                "repositories" : {
+                    "type": "array",
+                    "description": "Project repositories",
+                    "items": {
+                        "$ref": "#/definitions/repository"
+                    }
+                },
+                "users" : {
+                    "type": "object",
+                    "description": "Project users by role"
+                }
+            }
+        },
         "repository": {
             "properties": {
                 "repositoryid": {
                     "type": "string",
                     "description": "Unique Repository identifier"
+                },
+                "projectid": {
+                    "type": "string",
+                    "description": "Unique Project identifier"
                 },
                 "name": {
                     "type": "string",
@@ -459,6 +861,10 @@
                 "repositoryid": {
                     "type": "string",
                     "description": "Unique Repository identifier"
+                },
+                "projectid": {
+                    "type": "string",
+                    "description": "Unique Project identifier"
                 },
                 "name": {
                     "type": "string",
@@ -519,12 +925,9 @@
                     "type": "string",
                     "description": "Repository Owner"
                 },
-                "users": {
-                    "type": "array",
-                    "description": "all Repository users",
-                    "items": {
-                        "$ref": "#/definitions/user"
-                    }
+                "users" : {
+                    "type": "object",
+                    "description": "Project users by role"
                 }
             }
         },
@@ -585,12 +988,13 @@
                     "format": "date",
                     "description": "User last commit date"
                 },
-                "repositories": {
-                    "type": "array",
-                    "description": "All user Repositories",
-                    "items": {
-                        "$ref": "#/definitions/repository"
-                    }
+                "roles": {
+                    "type": "object",
+                    "description": "All user Roles by Project"
+                },
+                "positions": {
+                    "type": "object",
+                    "description": "All user Positions by Organization"
                 }
             }
         },
